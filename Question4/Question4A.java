@@ -72,9 +72,9 @@ public class Question4A { // Define the class Qno4A
 
         // Output the top 3 hashtags in the redesigned table format.
         // Print the table header.
-        System.out.println("+-------------+---------+"); // Print top border of the table
-        System.out.println("|   HASHTAG   |  COUNT  |"); // Print table header row with column names
-        System.out.println("+-------------+---------+"); // Print separator line
+        System.out.println("+-------------+---------+");
+        System.out.println("|   HASHTAG   |  COUNT  |");
+        System.out.println("+-------------+---------+");
 
         // Iterate through the top 3 hashtags (or fewer if there are less than 3).
         for (int i = 0; i < Math.min(3, sortedHashtags.size()); i++) { // Loop for the top 3 entries or less if not
