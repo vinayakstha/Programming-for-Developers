@@ -1,11 +1,9 @@
 package Question5;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-
+import javax.swing.*;
 /*
  * Network Optimizer Program:
  * --------------------------
@@ -17,245 +15,255 @@ import java.util.List;
  * - Results such as total cost and latency are displayed on the GUI.
  */
 
-public class Question5 extends JFrame { // Extending JFrame to create a GUI window
-
-    // GUI components for visualization and user interaction
-    private JPanel graphPanel;
-    private JButton addNodeButton, addEdgeButton, optimizeButton, findPathButton;
-    private JTextField costField, bandwidthField;
-    private JLabel totalCostLabel, latencyLabel;
-
-    // Data structures to store network information
-    private List<Node> nodes = new ArrayList<>();
-    private List<Edge> edges = new ArrayList<>();
+class Question5 extends JFrame {
     private Graph graph;
+    private JTextArea outputArea;
+    private JTextField nodeField1, nodeField2, costField, bandwidthField;
+    private GraphPanel graphPanel; // Panel to display the graph
 
-    // Constructor: Set up the GUI components and layout
     public Question5() {
-        setTitle("Network Optimizer");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setTitle("Network Optimization"); // Set the title of the JFrame
+        setSize(800, 600); // Set the size of the JFrame window
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Set the default close operation
+        setLayout(new BorderLayout()); // Set the layout of the JFrame
 
-        // Initialize the custom panel for drawing the network graph
-        graphPanel = new GraphPanel();
-        add(graphPanel, BorderLayout.CENTER);
+        graph = new Graph(); // Initialize a new Graph object
+        outputArea = new JTextArea(10, 50); // Create a JTextArea for displaying output
+        outputArea.setEditable(false); // Make the JTextArea non-editable
+        JScrollPane scrollPane = new JScrollPane(outputArea); // Wrap the JTextArea in a JScrollPane
 
-        // Create a control panel to hold buttons and input fields
-        JPanel controlPanel = new JPanel();
-        addNodeButton = new JButton("Add Node");
-        addEdgeButton = new JButton("Add Edge");
-        optimizeButton = new JButton("Optimize Network");
-        findPathButton = new JButton("Find Shortest Path");
-        costField = new JTextField(5);
-        bandwidthField = new JTextField(5);
-        totalCostLabel = new JLabel("Total Cost: 0");
-        latencyLabel = new JLabel("Latency: N/A");
+        JPanel controlPanel = new JPanel(); // Create a panel for controls (input fields and buttons)
+        nodeField1 = new JTextField(5); // Create a text field for the first node
+        nodeField2 = new JTextField(5); // Create a text field for the second node
+        costField = new JTextField(5); // Create a text field for the cost of the edge
+        bandwidthField = new JTextField(5); // Create a text field for the bandwidth of the edge
+        JButton addEdgeButton = new JButton("Add Connection"); // Create a button to add an edge
+        JButton optimizeButton = new JButton("Optimize Network"); // Create a button to optimize the network
+        JButton shortestPathButton = new JButton("Find Shortest Path"); // Create a button to find the shortest path
 
-        // Add components to the control panel in order
-        controlPanel.add(addNodeButton);
-        controlPanel.add(addEdgeButton);
+        // Add labels and fields for node1, node2, cost, and bandwidth to the control
+        // panel
+        controlPanel.add(new JLabel("Node 1:"));
+        controlPanel.add(nodeField1);
+        controlPanel.add(new JLabel("Node 2:"));
+        controlPanel.add(nodeField2);
         controlPanel.add(new JLabel("Cost:"));
         controlPanel.add(costField);
         controlPanel.add(new JLabel("Bandwidth:"));
         controlPanel.add(bandwidthField);
-        controlPanel.add(optimizeButton);
-        controlPanel.add(findPathButton);
-        controlPanel.add(totalCostLabel);
-        controlPanel.add(latencyLabel);
-        add(controlPanel, BorderLayout.SOUTH);
+        controlPanel.add(addEdgeButton); // Add the "Add Connection" button
+        controlPanel.add(optimizeButton); // Add the "Optimize Network" button
+        controlPanel.add(shortestPathButton); // Add the "Find Shortest Path" button
 
-        // Attach action listeners to the buttons to handle user interactions
-        addNodeButton.addActionListener(e -> addNode());
-        addEdgeButton.addActionListener(e -> addEdge());
-        optimizeButton.addActionListener(e -> optimizeNetwork());
-        findPathButton.addActionListener(e -> findShortestPath());
+        // Add the graph panel (where the graph will be drawn) to the JFrame
+        graphPanel = new GraphPanel(); // Create the graph panel
+        add(graphPanel, BorderLayout.CENTER); // Add it to the center of the layout
+        add(controlPanel, BorderLayout.NORTH); // Add control panel to the top of the layout
+        add(scrollPane, BorderLayout.SOUTH); // Add the scrollable output area to the bottom of the layout
 
-        setVisible(true); // Make the window visible to the user
+        // Define action listeners for each button
+        addEdgeButton.addActionListener(e -> addEdge()); // Action for adding an edge
+        optimizeButton.addActionListener(e -> optimizeNetwork()); // Action for optimizing the network
+        shortestPathButton.addActionListener(e -> findShortestPath()); // Action for finding the shortest path
     }
 
-    // Inner class representing a network node (server or client)
-    static class Node {
-        int id;
-        int x, y;
+    private void addEdge() {
+        String node1 = nodeField1.getText(); // Get the first node name from the text field
+        String node2 = nodeField2.getText(); // Get the second node name from the text field
+        int cost = Integer.parseInt(costField.getText()); // Parse the cost from the text field
+        int bandwidth = Integer.parseInt(bandwidthField.getText()); // Parse the bandwidth from the text field
+        graph.addEdge(node1, node2, cost, bandwidth); // Add the edge to the graph
+        outputArea.append(
+                "Added connection: " + node1 + " - " + node2 + " (Cost: " + cost + ", Bandwidth: " + bandwidth + ")\n"); // Append
+                                                                                                                         // the
+                                                                                                                         // result
+                                                                                                                         // to
+                                                                                                                         // the
+                                                                                                                         // output
+                                                                                                                         // area
 
-        Node(int id, int x, int y) {
-            this.id = id;
-            this.x = x;
-            this.y = y;
+        // Repaint the graph after adding an edge
+        graphPanel.repaint(); // Repaint the graph panel to reflect the added edge
+    }
+
+    private void optimizeNetwork() {
+        List<Edge> mst = graph.findMinimumSpanningTree(); // Get the minimum spanning tree (MST)
+        outputArea.append("\nOptimized Network (Minimum Cost Spanning Tree):\n"); // Print optimization heading
+        for (Edge edge : mst) {
+            outputArea.append(edge.node1 + " - " + edge.node2 + " (Cost: " + edge.cost + ")\n"); // Print each edge in
+                                                                                                 // the MST
         }
+
+        // Repaint the graph after optimizing the network
+        graphPanel.repaint(); // Repaint the graph panel to show the optimized network
     }
 
-    // Inner class representing an edge (connection) between two nodes
-    static class Edge {
-        Node src, dest;
-        int cost;
-        int bandwidth;
-
-        Edge(Node src, Node dest, int cost, int bandwidth) {
-            this.src = src;
-            this.dest = dest;
-            this.cost = cost;
-            this.bandwidth = bandwidth;
-        }
+    private void findShortestPath() {
+        String start = nodeField1.getText(); // Get the starting node from the text field
+        String end = nodeField2.getText(); // Get the ending node from the text field
+        int distance = graph.findShortestPath(start, end); // Find the shortest path between the nodes
+        outputArea.append("\nShortest path from " + start + " to " + end + " is " + distance + " units.\n"); // Print
+                                                                                                             // the
+                                                                                                             // result
     }
 
-    // Custom JPanel for drawing the network graph
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Question5().setVisible(true)); // Launch the GUI
+    }
+
+    // Custom JPanel for drawing the graph
     class GraphPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g); // Clear previous drawings and paint the background
+            super.paintComponent(g); // Call the superclass's paint method to ensure proper rendering
 
-            // Draw each edge in the network
-            for (Edge edge : edges) {
-                g.setColor(Color.BLACK); // Set color for edges
-                g.drawLine(edge.src.x, edge.src.y, edge.dest.x, edge.dest.y); // Draw a line between source and
-                                                                              // destination nodes
-
-                // Calculate the midpoint of the edge to place the label
-                int midX = (edge.src.x + edge.dest.x) / 2;
-                int midY = (edge.src.y + edge.dest.y) / 2;
-                // Draw label showing cost and bandwidth on the edge
-                g.drawString("C:" + edge.cost + " B:" + edge.bandwidth, midX, midY);
-            }
-
-            // Draw each node in the network
-            for (Node node : nodes) {
-                g.setColor(Color.BLUE); // Set color for nodes
-                // Draw the node as a filled circle (centered at node.x, node.y)
-                g.fillOval(node.x - 10, node.y - 10, 20, 20);
-                g.setColor(Color.BLACK); // Set color for node label text
-                // Draw the node's ID near the node
-                g.drawString("Node " + node.id, node.x - 15, node.y - 15);
-            }
+            // Set graphics properties
+            g.setColor(Color.BLACK); // Set the drawing color to black
+            // Call the graph's drawing method to visualize nodes and edges
+            graph.drawGraph(g); // Draw the graph on the panel
         }
-    }
-
-    // Method to add a new node at a random position
-    private void addNode() {
-        int id = nodes.size(); // Set node ID based on the number of existing nodes
-        int x = 50 + (int) (Math.random() * 700); // Random x-coordinate (within defined bounds)
-        int y = 50 + (int) (Math.random() * 500); // Random y-coordinate (within defined bounds)
-        nodes.add(new Node(id, x, y)); // Create and add the new node to the nodes list
-        graphPanel.repaint(); // Refresh the graph panel to display the new node
-    }
-
-    // Method to add an edge between the last two added nodes
-    private void addEdge() {
-        if (nodes.size() < 2) { // Check if at least two nodes exist
-            JOptionPane.showMessageDialog(this, "Need at least two nodes to add an edge.");
-            return; // Exit if there are not enough nodes
-        }
-        String costStr = costField.getText(); // Retrieve cost input as a string
-        String bandwidthStr = bandwidthField.getText(); // Retrieve bandwidth input as a string
-        try {
-            int cost = Integer.parseInt(costStr); // Convert cost to an integer
-            int bandwidth = Integer.parseInt(bandwidthStr); // Convert bandwidth to an integer
-            // Connect the last two nodes: the second-to-last is the source, and the last is
-            // the destination
-            Node src = nodes.get(nodes.size() - 2);
-            Node dest = nodes.get(nodes.size() - 1);
-            edges.add(new Edge(src, dest, cost, bandwidth)); // Create and add the new edge to the edges list
-            graphPanel.repaint(); // Refresh the graph panel to display the new edge
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid cost or bandwidth."); // Display error if input is invalid
-        }
-    }
-
-    // Method to optimize the network by computing a Minimum Spanning Tree (MST)
-    private void optimizeNetwork() {
-        if (nodes.isEmpty()) { // Check if there are any nodes in the network
-            return; // Exit if the network is empty
-        }
-        // Create a new Graph instance with the current number of nodes
-        graph = new Graph(nodes.size());
-        // Add each edge from the network to the graph using cost as the weight
-        for (Edge edge : edges) {
-            graph.addEdge(edge.src.id, edge.dest.id, edge.cost);
-        }
-        // Compute the MST cost using Kruskal's algorithm (placeholder implementation)
-        int totalCost = graph.kruskalMST();
-        totalCostLabel.setText("Total Cost: " + totalCost); // Update the total cost label with the MST cost
-        latencyLabel.setText("Latency: Optimized"); // Update the latency label to indicate network optimization
-    }
-
-    // Method to find the shortest path based on inverse bandwidth (to simulate
-    // latency)
-    private void findShortestPath() {
-        if (nodes.size() < 2) { // Check if there are at least two nodes
-            JOptionPane.showMessageDialog(this, "Need at least two nodes to find a path.");
-            return; // Exit if not enough nodes exist
-        }
-        // Define source as the first node and destination as the last node in the list
-        int srcId = nodes.get(0).id;
-        int destId = nodes.get(nodes.size() - 1).id;
-        // Create a new Graph instance for the path finding process
-        graph = new Graph(nodes.size());
-        // Add each edge to the graph using the inverse of the bandwidth as the weight
-        // (this means higher bandwidth results in lower latency)
-        for (Edge edge : edges) {
-            graph.addEdge(edge.src.id, edge.dest.id, 1.0 / edge.bandwidth);
-        }
-        // Compute the shortest path latency using Dijkstra's algorithm (placeholder
-        // implementation)
-        double latency = graph.dijkstra(srcId, destId);
-        latencyLabel.setText("Latency: " + latency); // Update the latency label with the computed value
-    }
-
-    // Graph class to support network optimization algorithms (MST and shortest
-    // path)
-    static class Graph {
-        private int V; // Number of vertices in the graph
-        private List<Edge> edges; // List of all edges in the graph
-
-        // Constructor: Initialize the graph with a given number of vertices
-        Graph(int V) {
-            this.V = V;
-            edges = new ArrayList<>();
-        }
-
-        // Method to add an edge to the graph with a specified weight
-        void addEdge(int src, int dest, double weight) {
-            edges.add(new Edge(new Node(src, 0, 0), new Node(dest, 0, 0), (int) weight, 0));
-        }
-
-        // Placeholder method for Kruskal's algorithm to compute the MST cost
-        int kruskalMST() {
-            // Actual implementation of Kruskal's algorithm should be provided here.
-            // Currently, this method returns 0 as a placeholder.
-            return 0;
-        }
-
-        double dijkstra(int src, int dest) {
-
-            return 0.0;
-        }
-    }
-
-    // Main method to launch the GUI application
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Question5::new);
     }
 }
 
-/*
- * Input/Output:
- * -------------
- * Input:
- * - The user interacts with the GUI by:
- * • Clicking "Add Node" to add nodes at random positions.
- * • Entering values in "Cost" and "Bandwidth" then clicking "Add Edge" to
- * connect nodes.
- * • Clicking "Optimize Network" to compute the network's MST cost (placeholder
- * output).
- * • Clicking "Find Shortest Path" to compute the shortest path latency
- * (placeholder output).
- *
- * Output:
- * - A graphical window displays the network graph.
- * - Nodes appear as blue circles labeled with their node IDs (e.g., "Node 0").
- * - Edges are drawn as black lines with labels indicating cost and bandwidth
- * (e.g., "C:10 B:100").
- * - The "Total Cost" and "Latency" labels are updated based on the computed
- * results.
- */
+class Graph {
+    private Map<String, List<Edge>> adjList = new HashMap<>(); // Adjacency list for storing the graph
+
+    public void addEdge(String node1, String node2, int cost, int bandwidth) {
+        adjList.putIfAbsent(node1, new ArrayList<>()); // Add the first node if it does not exist
+        adjList.putIfAbsent(node2, new ArrayList<>()); // Add the second node if it does not exist
+        adjList.get(node1).add(new Edge(node1, node2, cost, bandwidth)); // Add the edge to the adjacency list for node1
+        adjList.get(node2).add(new Edge(node2, node1, cost, bandwidth)); // Add the edge to the adjacency list for node2
+    }
+
+    public List<Edge> findMinimumSpanningTree() {
+        List<Edge> edges = new ArrayList<>(); // List to store all edges
+        for (List<Edge> list : adjList.values()) {
+            edges.addAll(list); // Add all edges from the adjacency list to the edges list
+        }
+        edges.sort(Comparator.comparingInt(e -> e.cost)); // Sort the edges by cost in ascending order
+
+        List<Edge> mst = new ArrayList<>(); // List to store the minimum spanning tree
+        UnionFind uf = new UnionFind(adjList.keySet()); // Create a UnionFind structure for disjoint sets
+        for (Edge edge : edges) {
+            if (uf.union(edge.node1, edge.node2)) { // If the nodes of the edge are not in the same set, add the edge to
+                                                    // the MST
+                mst.add(edge); // Add the edge to the MST
+            }
+        }
+        return mst; // Return the minimum spanning tree
+    }
+
+    public int findShortestPath(String start, String end) {
+        PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(n -> n.cost)); // Priority queue for nodes,
+                                                                                            // sorted by cost
+        Map<String, Integer> distances = new HashMap<>(); // Map to store the shortest distance to each node
+        Set<String> visited = new HashSet<>(); // Set to keep track of visited nodes
+
+        distances.put(start, 0); // Set the distance to the start node to 0
+        pq.add(new Node(start, 0)); // Add the start node to the priority queue
+
+        while (!pq.isEmpty()) {
+            Node current = pq.poll(); // Get the node with the smallest distance from the queue
+            if (!visited.add(current.name)) // Skip if the node is already visited
+                continue;
+            if (current.name.equals(end)) // If the current node is the destination, return the distance
+                return current.cost;
+
+            for (Edge neighbor : adjList.getOrDefault(current.name, Collections.emptyList())) { // For each neighbor of
+                                                                                                // the current node
+                int newDist = current.cost + neighbor.cost; // Calculate the new distance to the neighbor
+                if (newDist < distances.getOrDefault(neighbor.node2, Integer.MAX_VALUE)) { // If the new distance is
+                                                                                           // shorter, update it
+                    distances.put(neighbor.node2, newDist); // Update the distance for the neighbor
+                    pq.add(new Node(neighbor.node2, newDist)); // Add the neighbor to the priority queue
+                }
+            }
+        }
+        return -1; // Return -1 if no path is found
+    }
+
+    // Method to draw the graph (nodes and edges) on the panel
+    public void drawGraph(Graphics g) {
+        int nodeRadius = 20; // Radius for drawing the nodes
+        Map<String, Point> nodePositions = new HashMap<>(); // Map to store the positions of the nodes
+        int x = 100, y = 100; // Starting position for drawing the nodes
+
+        // Example: Draw nodes and edges
+        for (String node : adjList.keySet()) {
+            nodePositions.put(node, new Point(x, y)); // Store the position of each node
+            g.setColor(Color.BLUE); // Set the color for nodes
+            g.fillOval(x - nodeRadius, y - nodeRadius, nodeRadius * 2, nodeRadius * 2); // Draw the node as a circle
+            g.setColor(Color.BLACK); // Set the color for the text
+            g.drawString(node, x - nodeRadius / 2, y - nodeRadius); // Draw the node's name
+
+            x += 150; // Move to the next x position for the next node
+            if (x > 500) { // If x position exceeds the width, move to the next row
+                x = 100;
+                y += 150; // Move down to the next row
+            }
+        }
+
+        // Draw edges (connections between nodes)
+        for (String node : adjList.keySet()) {
+            Point node1Pos = nodePositions.get(node); // Get the position of the first node
+            for (Edge edge : adjList.get(node)) {
+                Point node2Pos = nodePositions.get(edge.node2); // Get the position of the second node
+                g.setColor(Color.RED); // Set the color for edges
+                g.drawLine(node1Pos.x, node1Pos.y, node2Pos.x, node2Pos.y); // Draw the edge between the nodes
+                g.setColor(Color.BLACK); // Set the color for the text (cost)
+                g.drawString(edge.cost + "", (node1Pos.x + node2Pos.x) / 2, (node1Pos.y + node2Pos.y) / 2); // Draw the
+                                                                                                            // cost
+                                                                                                            // label on
+                                                                                                            // the edge
+            }
+        }
+    }
+}
+
+class Edge {
+    String node1, node2;
+    int cost, bandwidth;
+
+    public Edge(String node1, String node2, int cost, int bandwidth) {
+        this.node1 = node1; // Initialize the first node
+        this.node2 = node2; // Initialize the second node
+        this.cost = cost; // Initialize the cost
+        this.bandwidth = bandwidth; // Initialize the bandwidth
+    }
+}
+
+class Node {
+    String name;
+    int cost;
+
+    public Node(String name, int cost) {
+        this.name = name; // Initialize the node's name
+        this.cost = cost; // Initialize the node's cost
+    }
+}
+
+class UnionFind {
+    private Map<String, String> parent = new HashMap<>(); // Map to store the parent of each node
+
+    public UnionFind(Set<String> nodes) {
+        for (String node : nodes)
+            parent.put(node, node); // Initialize each node's parent to be itself
+    }
+
+    public String find(String node) {
+        if (!parent.get(node).equals(node)) { // If the node's parent is not itself
+            parent.put(node, find(parent.get(node))); // Recursively find the root parent
+        }
+        return parent.get(node); // Return the root parent of the node
+    }
+
+    public boolean union(String node1, String node2) {
+        String root1 = find(node1); // Find the root of the first node
+        String root2 = find(node2); // Find the root of the second node
+        if (!root1.equals(root2)) { // If the nodes are not connected
+            parent.put(root1, root2); // Connect the two nodes by making one root the parent of the other
+            return true; // Return true to indicate that the union was successful
+        }
+        return false; // Return false if the nodes are already connected
+    }
+}
