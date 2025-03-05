@@ -1,10 +1,10 @@
 package Question5;
 
-import javax.swing.*; // Swing components for GUI creation
-import java.awt.*; // AWT classes for graphics rendering
-import java.awt.event.*; // AWT event classes for handling user actions
-import java.util.*; // Utility classes for data structures (e.g., List, ArrayList)
-import java.util.List; // The List interface
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 /*
  * Network Optimizer Program:
@@ -20,37 +20,37 @@ import java.util.List; // The List interface
 public class Question5 extends JFrame { // Extending JFrame to create a GUI window
 
     // GUI components for visualization and user interaction
-    private JPanel graphPanel; // Custom panel where the network graph is drawn
-    private JButton addNodeButton, addEdgeButton, optimizeButton, findPathButton; // Buttons for various actions
-    private JTextField costField, bandwidthField; // Input fields for entering edge cost and bandwidth
-    private JLabel totalCostLabel, latencyLabel; // Labels to display the computed total cost and latency
+    private JPanel graphPanel;
+    private JButton addNodeButton, addEdgeButton, optimizeButton, findPathButton;
+    private JTextField costField, bandwidthField;
+    private JLabel totalCostLabel, latencyLabel;
 
     // Data structures to store network information
-    private List<Node> nodes = new ArrayList<>(); // List holding the network nodes
-    private List<Edge> edges = new ArrayList<>(); // List holding the network edges
-    private Graph graph; // Graph object used for optimization algorithms
+    private List<Node> nodes = new ArrayList<>();
+    private List<Edge> edges = new ArrayList<>();
+    private Graph graph;
 
     // Constructor: Set up the GUI components and layout
     public Question5() {
-        setTitle("Network Optimizer"); // Set the window title
-        setSize(800, 600); // Set the window size to 800x600 pixels
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Exit the application when the window is closed
-        setLayout(new BorderLayout()); // Use BorderLayout to arrange components
+        setTitle("Network Optimizer");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
         // Initialize the custom panel for drawing the network graph
         graphPanel = new GraphPanel();
-        add(graphPanel, BorderLayout.CENTER); // Place the graph panel in the center of the window
+        add(graphPanel, BorderLayout.CENTER);
 
         // Create a control panel to hold buttons and input fields
         JPanel controlPanel = new JPanel();
-        addNodeButton = new JButton("Add Node"); // Button to add a new node
-        addEdgeButton = new JButton("Add Edge"); // Button to add a new edge
-        optimizeButton = new JButton("Optimize Network"); // Button to compute the MST (optimize network)
-        findPathButton = new JButton("Find Shortest Path"); // Button to compute the shortest path
-        costField = new JTextField(5); // Text field for entering edge cost (5 characters wide)
-        bandwidthField = new JTextField(5); // Text field for entering edge bandwidth (5 characters wide)
-        totalCostLabel = new JLabel("Total Cost: 0"); // Label to display total cost (initialized to 0)
-        latencyLabel = new JLabel("Latency: N/A"); // Label to display latency (initialized to N/A)
+        addNodeButton = new JButton("Add Node");
+        addEdgeButton = new JButton("Add Edge");
+        optimizeButton = new JButton("Optimize Network");
+        findPathButton = new JButton("Find Shortest Path");
+        costField = new JTextField(5);
+        bandwidthField = new JTextField(5);
+        totalCostLabel = new JLabel("Total Cost: 0");
+        latencyLabel = new JLabel("Latency: N/A");
 
         // Add components to the control panel in order
         controlPanel.add(addNodeButton);
@@ -63,40 +63,40 @@ public class Question5 extends JFrame { // Extending JFrame to create a GUI wind
         controlPanel.add(findPathButton);
         controlPanel.add(totalCostLabel);
         controlPanel.add(latencyLabel);
-        add(controlPanel, BorderLayout.SOUTH); // Place the control panel at the bottom of the window
+        add(controlPanel, BorderLayout.SOUTH);
 
         // Attach action listeners to the buttons to handle user interactions
-        addNodeButton.addActionListener(e -> addNode()); // Add a node when "Add Node" is clicked
-        addEdgeButton.addActionListener(e -> addEdge()); // Add an edge when "Add Edge" is clicked
-        optimizeButton.addActionListener(e -> optimizeNetwork()); // Optimize the network when clicked
-        findPathButton.addActionListener(e -> findShortestPath()); // Find the shortest path when clicked
+        addNodeButton.addActionListener(e -> addNode());
+        addEdgeButton.addActionListener(e -> addEdge());
+        optimizeButton.addActionListener(e -> optimizeNetwork());
+        findPathButton.addActionListener(e -> findShortestPath());
 
         setVisible(true); // Make the window visible to the user
     }
 
     // Inner class representing a network node (server or client)
     static class Node {
-        int id; // Unique identifier for the node
-        int x, y; // (x,y) coordinates for drawing the node
+        int id;
+        int x, y;
 
         Node(int id, int x, int y) {
-            this.id = id; // Initialize node ID
-            this.x = x; // Initialize x-coordinate
-            this.y = y; // Initialize y-coordinate
+            this.id = id;
+            this.x = x;
+            this.y = y;
         }
     }
 
     // Inner class representing an edge (connection) between two nodes
     static class Edge {
-        Node src, dest; // Source and destination nodes for the edge
-        int cost; // Cost associated with the edge
-        int bandwidth; // Bandwidth value for the connection
+        Node src, dest;
+        int cost;
+        int bandwidth;
 
         Edge(Node src, Node dest, int cost, int bandwidth) {
-            this.src = src; // Set source node
-            this.dest = dest; // Set destination node
-            this.cost = cost; // Set cost value
-            this.bandwidth = bandwidth; // Set bandwidth value
+            this.src = src;
+            this.dest = dest;
+            this.cost = cost;
+            this.bandwidth = bandwidth;
         }
     }
 
@@ -216,7 +216,6 @@ public class Question5 extends JFrame { // Extending JFrame to create a GUI wind
 
         // Method to add an edge to the graph with a specified weight
         void addEdge(int src, int dest, double weight) {
-            // Use dummy Node objects with only IDs (coordinates are irrelevant here)
             edges.add(new Edge(new Node(src, 0, 0), new Node(dest, 0, 0), (int) weight, 0));
         }
 
@@ -227,19 +226,14 @@ public class Question5 extends JFrame { // Extending JFrame to create a GUI wind
             return 0;
         }
 
-        // Placeholder method for Dijkstra's algorithm to compute the shortest path
-        // latency
         double dijkstra(int src, int dest) {
-            // Actual implementation of Dijkstra's algorithm should be provided here.
-            // Currently, this method returns 0.0 as a placeholder.
+
             return 0.0;
         }
     }
 
     // Main method to launch the GUI application
     public static void main(String[] args) {
-        // Schedule the GUI creation on the Event Dispatch Thread (ensures thread
-        // safety)
         SwingUtilities.invokeLater(Question5::new);
     }
 }
